@@ -34,8 +34,6 @@
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
     "moduleDetection": "force",
-    "skipLibCheck": true,
-    "emitDeclarationOnly": true,
-    "allowImportingTsExtensions":true
+    "skipLibCheck": true
   }
 }

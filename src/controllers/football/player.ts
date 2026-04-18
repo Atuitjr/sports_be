@@ -1,23 +1,21 @@
-import type { PlayerInfo, PlayersRequest } from "../../interfaces/football/player.ts";
-import { getPlayerUseCase } from "../../useCases/football/player.ts";
+import type { Response } from 'express';
+import type { PlayerInfo, PlayersRequest } from '../../interfaces/football/player.js';
+import { getPlayerUseCase } from '../../useCases/football/player.js';
 
+export const getPlayerController = async (req: PlayersRequest, res: Response): Promise<void> => {
+    const { playerId } = req.query;
 
-
-export const getPlayerController = async (req: PlayersRequest, res: any) => {
-    try {
-        
-        const headers = req.headers;
-        const { playerid } = headers;
-
-        if (!playerid) {
-            res.status(400).json({ error: 'Bad Request',  message: 'playerId header is required' });
-            return;
-        }
-
-        const playerInfo: PlayerInfo = await getPlayerUseCase(Number(playerid));
-        
-        res.status(200).json({ player: playerInfo });
-    } catch (error) {
-        res.status(401).json({ error: 'Server error',  message: error  });
+    if (playerId === undefined) {
+        res.status(400).json({ error: 'playerId query param is required' });
+        return;
     }
+
+    const parsed = parseInt(playerId, 10);
+    if (isNaN(parsed)) {
+        res.status(400).json({ error: 'playerId must be a valid number' });
+        return;
+    }
+
+    const player: PlayerInfo = await getPlayerUseCase(parsed);
+    res.status(200).json(player);
 };

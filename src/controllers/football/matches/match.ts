@@ -1,21 +1,21 @@
-import type { Match, MatchesRequest } from "../../../interfaces/football/matches.ts";
-import { getMatchUseCase } from "../../../useCases/football/matches/match.ts";
+import type { Response } from 'express';
+import type { MatchesRequest, Match } from '../../../interfaces/football/matches.js';
+import { getMatchUseCase } from '../../../useCases/football/matches/match.js';
 
+export const getMatchController = async (req: MatchesRequest, res: Response): Promise<void> => {
+    const { matchId } = req.query;
 
-export const getMatchController = async (req: MatchesRequest, res: any) => {
-    try {
-        const headers = req.headers;
-        const { matchid } = headers;
-
-        if (!matchid) {
-            res.status(400).json({ error: 'Bad Request',  message: 'matchid header is required' });
-            return;
-        }
-
-        const matchesList: Match = await getMatchUseCase(Number(matchid));
-        
-        res.status(200).json({ matches: matchesList });
-    } catch (error) {
-        res.status(401).json({ error: 'Server error',  message: error  });
+    if (matchId === undefined) {
+        res.status(400).json({ error: 'matchId query param is required' });
+        return;
     }
+
+    const parsed = parseInt(matchId, 10);
+    if (isNaN(parsed)) {
+        res.status(400).json({ error: 'matchId must be a valid number' });
+        return;
+    }
+
+    const match: Match = await getMatchUseCase(parsed);
+    res.status(200).json({ match });
 };

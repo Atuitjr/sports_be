@@ -1,119 +1,145 @@
-import type { Country } from "../interfaces/football/countries.ts";
-import type { LeagueDetails } from "../interfaces/football/leagues.ts";
-import apiClient from "../lib/axios.ts";
-import type { standingsDetails } from "../interfaces/football/standings.ts";
-import type { TeamInfo, TeamsByLeague } from "../interfaces/football/teams.ts";
-import type { PlayerInfo } from "../interfaces/football/player.ts";
-import type { Pichichi } from "../interfaces/football/pichichi.ts";
-import type { Match, MatchesPerTeam, MatchPerCompetition } from "../interfaces/football/matches.ts";
+import type { Country } from '../interfaces/football/countries.js';
+import type { LeagueDetails } from '../interfaces/football/leagues.js';
+import apiClient from '../lib/axios.js';
+import { logger } from '../lib/logger.js';
+import type { standingsDetails } from '../interfaces/football/standings.js';
+import type { TeamInfo, TeamsByLeague } from '../interfaces/football/teams.js';
+import type { PlayerInfo } from '../interfaces/football/player.js';
+import type { Pichichi } from '../interfaces/football/pichichi.js';
+import type { Match, MatchesPerTeam, MatchPerCompetition } from '../interfaces/football/matches.js';
+
+const toError = (err: unknown): Error =>
+  err instanceof Error ? err : new Error(String(err));
 
 export const footballRepository = {
     getCountries: async (): Promise<Country[]> => {
-        try{
-            console.log("Getting data for the areas")
-            const response =  await apiClient.get('/areas');
+        try {
+            logger.debug('Fetching areas');
+            const response = await apiClient.get('/areas');
             return response.data.areas as Country[];
-        } catch (error) {
-            throw new Error(`Error fetching countries from API: ${error}`);
+        } catch (err) {
+            const error = toError(err);
+            logger.error('Failed to fetch countries', { message: error.message });
+            throw error;
         }
     },
 
     getSeasons: async (): Promise<number[]> => {
-        try{
-            const response =  await apiClient.get('/leagues/seasons');
+        try {
+            const response = await apiClient.get('/leagues/seasons');
             return response.data.response as number[];
-        } catch (error) {
-            throw new Error(`Error fetching seasons from API: ${error}`);
-        }  
+        } catch (err) {
+            const error = toError(err);
+            logger.error('Failed to fetch seasons', { message: error.message });
+            throw error;
+        }
     },
 
-    getLeagues: async (countryId: Number): Promise<LeagueDetails[]> => {
-        try{
-            console.log(`Calling leagues with ${countryId} as its countryId`)
-            const response =  await apiClient.get(`/competitions?areas=${countryId}`);
+    getLeagues: async (countryId: number): Promise<LeagueDetails[]> => {
+        try {
+            logger.debug('Fetching leagues', { countryId });
+            const response = await apiClient.get(`/competitions?areas=${countryId}`);
             return response.data.competitions as LeagueDetails[];
-        } catch (error) {
-            throw new Error(`Error fetching leagues from API: ${error}`);
+        } catch (err) {
+            const error = toError(err);
+            logger.error('Failed to fetch leagues', { countryId, message: error.message });
+            throw error;
         }
     },
 
-    getStandings: async (leagueId: Number): Promise<standingsDetails[]> => {
-        try{
-            console.log(`Calling standings with ${leagueId} as its leagueId`)
-            const response =  await apiClient.get(`/competitions/${leagueId}/standings`);
+    getStandings: async (leagueId: number): Promise<standingsDetails[]> => {
+        try {
+            logger.debug('Fetching standings', { leagueId });
+            const response = await apiClient.get(`/competitions/${leagueId}/standings`);
             return response.data as standingsDetails[];
-        } catch (error) {
-            throw new Error(`Error fetching standings from API: ${error}`);
+        } catch (err) {
+            const error = toError(err);
+            logger.error('Failed to fetch standings', { leagueId, message: error.message });
+            throw error;
         }
     },
 
-    getTeamInfo: async (teamId: Number): Promise<TeamInfo> => {
-        try{
-            console.log(`Calling team info with ${teamId} as its teamId`)
-            const response =  await apiClient.get(`/teams/${teamId}`);
+    getTeamInfo: async (teamId: number): Promise<TeamInfo> => {
+        try {
+            logger.debug('Fetching team info', { teamId });
+            const response = await apiClient.get(`/teams/${teamId}`);
             return response.data as TeamInfo;
-        } catch (error) {
-            throw new Error(`Error fetching team info from API: ${error}`);
+        } catch (err) {
+            const error = toError(err);
+            logger.error('Failed to fetch team info', { teamId, message: error.message });
+            throw error;
         }
-    } ,
+    },
 
-    getPlayerInfo: async (playerId: Number): Promise<PlayerInfo> => {
-        try{
-            console.log(`Calling player info with ${playerId} as its playerId`)
-            const response =  await apiClient.get(`/persons/${playerId}`);
+    getPlayerInfo: async (playerId: number): Promise<PlayerInfo> => {
+        try {
+            logger.debug('Fetching player info', { playerId });
+            const response = await apiClient.get(`/persons/${playerId}`);
             return response.data as PlayerInfo;
-        } catch (error) {
-            throw new Error(`Error fetching player info from API: ${error}`);
+        } catch (err) {
+            const error = toError(err);
+            logger.error('Failed to fetch player info', { playerId, message: error.message });
+            throw error;
         }
     },
 
-    getPichichi: async (leagueId: Number): Promise<Pichichi> => {
-        try{
-            console.log(`Calling pichichi with ${leagueId} as its leagueId`)
-            const response =  await apiClient.get(`/competitions/${leagueId}/scorers`);
+    getPichichi: async (leagueId: number): Promise<Pichichi> => {
+        try {
+            logger.debug('Fetching top scorers', { leagueId });
+            const response = await apiClient.get(`/competitions/${leagueId}/scorers`);
             return response.data as Pichichi;
-        } catch (error) {
-            throw new Error(`Error fetching pichichi from API: ${error}`);
+        } catch (err) {
+            const error = toError(err);
+            logger.error('Failed to fetch top scorers', { leagueId, message: error.message });
+            throw error;
         }
     },
 
-    getMatchesPerCompetition: async (leagueId: Number): Promise<MatchPerCompetition> => {
-        try{
-            console.log(`Calling matches per competition with ${leagueId} as its leagueId`)
-            const response =  await apiClient.get(`/competitions/${leagueId}/matches`);
+    getMatchesPerCompetition: async (leagueId: number): Promise<MatchPerCompetition> => {
+        try {
+            logger.debug('Fetching matches per competition', { leagueId });
+            const response = await apiClient.get(`/competitions/${leagueId}/matches`);
             return response.data as MatchPerCompetition;
-        } catch (error) {
-            throw new Error(`Error fetching matches per competition from API: ${error}`);
+        } catch (err) {
+            const error = toError(err);
+            logger.error('Failed to fetch matches per competition', { leagueId, message: error.message });
+            throw error;
         }
     },
 
-    getTeamsByLeague: async (leagueId: Number): Promise<TeamsByLeague> => {
-        try{
-            console.log(`Calling teams by league with ${leagueId} as its leagueId`)
-            const response =  await apiClient.get(`/competitions/${leagueId}/teams`);
+    getTeamsByLeague: async (leagueId: number): Promise<TeamsByLeague> => {
+        try {
+            logger.debug('Fetching teams by league', { leagueId });
+            const response = await apiClient.get(`/competitions/${leagueId}/teams`);
             return response.data as TeamsByLeague;
-        } catch (error) {
-            throw new Error(`Error fetching teams by league from API: ${error}`);
+        } catch (err) {
+            const error = toError(err);
+            logger.error('Failed to fetch teams by league', { leagueId, message: error.message });
+            throw error;
         }
     },
 
-    getMatchesPerTeam: async (teamId: Number): Promise<MatchesPerTeam> => {
-        try{
-            console.log(`Calling matches per team with ${teamId} as its teamId`)
-            const response =  await apiClient.get(`/teams/${teamId}/matches`);
+    getMatchesPerTeam: async (teamId: number): Promise<MatchesPerTeam> => {
+        try {
+            logger.debug('Fetching matches per team', { teamId });
+            const response = await apiClient.get(`/teams/${teamId}/matches`);
             return response.data.matches as MatchesPerTeam;
-        } catch (error) {
-            throw new Error(`Error fetching matches per team from API: ${error}`);
+        } catch (err) {
+            const error = toError(err);
+            logger.error('Failed to fetch matches per team', { teamId, message: error.message });
+            throw error;
         }
     },
 
-    getMatch: async (matchId: Number): Promise<Match> => {
-        try{
-            console.log(`Calling match with ${matchId} as its matchId`)
-            const response =  await apiClient.get(`/matches/${matchId}`);
+    getMatch: async (matchId: number): Promise<Match> => {
+        try {
+            logger.debug('Fetching match', { matchId });
+            const response = await apiClient.get(`/matches/${matchId}`);
             return response.data as Match;
-        } catch (error) {
-            throw new Error(`Error fetching match from API: ${error}`);
+        } catch (err) {
+            const error = toError(err);
+            logger.error('Failed to fetch match', { matchId, message: error.message });
+            throw error;
         }
     },
-}
+};

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { footballControllers } from '../../controllers/football/index.ts';
+import { footballControllers } from '../../controllers/football/index.js';
 
 const router = Router();
 

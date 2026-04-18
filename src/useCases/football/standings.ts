@@ -1,26 +1,20 @@
-import { FOOTBALL_STANDINGS_CACHE_KEY } from "../../constants/football.ts";
-import type { standingsDetails } from "../../interfaces/football/standings.ts";
-import { footballRepository } from "../../repositories/football.ts";
-import {  getHashDataByField, setHashData } from "../../repositories/redisRepository.ts";
+import { FOOTBALL_STANDINGS_CACHE_KEY } from '../../constants/football.js';
+import type { standingsDetails } from '../../interfaces/football/standings.js';
+import { footballRepository } from '../../repositories/football.js';
+import { getHashDataByField, setHashData } from '../../repositories/redisRepository.js';
 
-export const getStandingsUseCase = async (leagueId: Number = -1) => {
-    try {
-        const cachedData = await getHashDataByField(FOOTBALL_STANDINGS_CACHE_KEY, leagueId.toString());
-        let standingsList: { standings: standingsDetails[] } | null = cachedData as { standings: standingsDetails[] } || null;
+type StandingsCache = { standings: standingsDetails[] };
 
-        if (standingsList) {
-            return standingsList.standings
-        }
+export const getStandingsUseCase = async (leagueId: number): Promise<standingsDetails[]> => {
+    const cached = await getHashDataByField<StandingsCache>(FOOTBALL_STANDINGS_CACHE_KEY, String(leagueId));
 
-        const standingsResponse: standingsDetails[] = await footballRepository.getStandings(leagueId ?? -1);
-        standingsList = {
-            standings: {...standingsResponse}
-        }
-
-        await setHashData(FOOTBALL_STANDINGS_CACHE_KEY, leagueId?.toString(),  standingsList);
-
-        return standingsList.standings;
-    } catch (error) {
-        throw new Error(`Error fetching standings: ${error}`);
+    if (cached) {
+        return cached.standings;
     }
-}
+
+    const standingsResponse = await footballRepository.getStandings(leagueId);
+    const payload: StandingsCache = { standings: standingsResponse };
+    await setHashData(FOOTBALL_STANDINGS_CACHE_KEY, String(leagueId), payload);
+
+    return payload.standings;
+};

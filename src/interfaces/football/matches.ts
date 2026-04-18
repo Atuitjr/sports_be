@@ -1,13 +1,14 @@
-import type { Area } from "./leagues.ts";
-import type { Competition, leagueId, Season } from "./standings.ts";
-import type { TeamId } from "./teams.ts";
+import type { Request } from 'express';
+import type { Area } from './leagues.js';
+import type { Competition, Season } from './standings.js';
+import type { TeamId } from './teams.js';
+import type { leagueId } from './standings.js';
 
 type MatchId = number;
 
 export interface MatchesRequest extends Request {
-    headers: Request["headers"] & 
-            { leagueid?: leagueId, teamid?: TeamId, matchid?: MatchId };
-};
+    query: Request['query'] & { leagueId?: string; teamId?: string; matchId?: string };
+}
 
 type ResultSet = {
     count: number;
@@ -22,15 +23,9 @@ type CoachInfo = {
     nationality: string;
 }
 
-type PlayerInfoMatch = {   
-        player: {
-            id: number;
-            name: string;
-        };
-        team: {
-            id: number;
-            name: string;    
-        };
+type PlayerInfoMatch = {
+    player: { id: number; name: string };
+    team: { id: number; name: string };
 }
 
 type TeamInfoMatch = {
@@ -47,61 +42,32 @@ type TeamInfoMatch = {
 }
 
 type Score = {
-    winner: "HOME_TEAM" | "AWAY_TEAM" | "DRAW";
+    winner: 'HOME_TEAM' | 'AWAY_TEAM' | 'DRAW';
     duration: string;
-    fullTime: {
-        homeTeam: number | null;
-        awayTeam: number | null;
-    };
-    halfTime: {
-        homeTeam: number | null;
-        awayTeam: number | null;
-    };
+    fullTime: { homeTeam: number | null; awayTeam: number | null };
+    halfTime: { homeTeam: number | null; awayTeam: number | null };
 }
 
 type Goal = {
     minute: number;
     injuryTime: number | null;
     type: string;
-    team: {
-        id: number;
-        name: string;
-    };
-    scorer: {
-        id: number;
-        name: string;
-    };
-    assist: {
-        id: number;
-        name: string;
-    } | null;
-    score: {
-        homeTeam: number;
-        awayTeam: number;
-    };
+    team: { id: number; name: string };
+    scorer: { id: number; name: string };
+    assist: { id: number; name: string } | null;
+    score: { homeTeam: number; awayTeam: number };
 }
 
-type Penalties = PlayerInfoMatch & {
-    scored: boolean;
-}
+type Penalties = PlayerInfoMatch & { scored: boolean }
 
-type Odds = {
-    homeWin: number | null;
-    draw: number | null;
-    awayWin: number | null;
-}
+type Odds = { homeWin: number | null; draw: number | null; awayWin: number | null }
 
-type Referee = {
-    id: number;
-    name: string;
-    type: string;
-    nationality: string;
-}
+type Referee = { id: number; name: string; type: string; nationality: string }
 
 export interface Match {
     area: Area;
     competition: Competition;
-    season: Season
+    season: Season;
     id: number;
     utcDate: string;
     status: string;
@@ -110,21 +76,15 @@ export interface Match {
     attendance: number | null;
     matchday: number;
     stage: string;
-    group: string |  null;
+    group: string | null;
     lastUpdated: string;
     homeTeam: TeamInfoMatch;
     awayTeam: TeamInfoMatch;
     score: Score;
     goals: Goal[];
     penalties: Penalties[];
-    bookings: (PlayerInfoMatch & {
-        card: "YELLOW_CARD" | "RED_CARD";
-        minute: number;
-    })[];
-    substitutions: (PlayerInfoMatch & {
-        minute: number;
-        type: "IN" | "OUT";
-    })[];
+    bookings: (PlayerInfoMatch & { card: 'YELLOW_CARD' | 'RED_CARD'; minute: number })[];
+    substitutions: (PlayerInfoMatch & { minute: number; type: 'IN' | 'OUT' })[];
     odds: Odds | null;
     referees: Referee[];
 }
@@ -138,3 +98,5 @@ export interface MatchPerCompetition {
 export interface MatchesPerTeam {
     matches: Match[];
 }
+
+export type { TeamId, leagueId, MatchId };

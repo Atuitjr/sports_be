@@ -1,27 +1,21 @@
-import { FOOTBALL_CACHE_TTL, FOOTBALL_COUNTRIES_CACHE_KEY } from "../../constants/football.ts";
-import type { Country, CountryId } from "../../interfaces/football/countries.ts";
-import { footballRepository } from "../../repositories/football.ts";
-import { getCachedDataByKey, setCachedData } from "../../repositories/redisRepository.ts";
-import { filterCountriesById } from "../../utils/utils.ts";
+import { FOOTBALL_CACHE_TTL, FOOTBALL_COUNTRIES_CACHE_KEY } from '../../constants/football.js';
+import type { Country, CountryId } from '../../interfaces/football/countries.js';
+import { footballRepository } from '../../repositories/football.js';
+import { getCachedDataByKey, setCachedData } from '../../repositories/redisRepository.js';
+import { filterCountriesById } from '../../utils/utils.js';
 
-export const getCountriesUseCase = async (countryId: CountryId = null) => {
-    try {
-        const cachedData = await getCachedDataByKey(FOOTBALL_COUNTRIES_CACHE_KEY);
-        let countriesList: { countries: Country[] } | null = cachedData || null;
+type CountriesCache = { countries: Country[] };
 
-        if (countriesList) {
-            return filterCountriesById(countriesList.countries, countryId);
-        }
+export const getCountriesUseCase = async (countryId: CountryId = null): Promise<Country[]> => {
+    const cached = await getCachedDataByKey<CountriesCache>(FOOTBALL_COUNTRIES_CACHE_KEY);
 
-        const countriesResponse: Country[] = await footballRepository.getCountries();
-        countriesList = {
-            countries: [...countriesResponse]
-        }
-
-        await setCachedData(FOOTBALL_COUNTRIES_CACHE_KEY, countriesList, FOOTBALL_CACHE_TTL);
-
-        return filterCountriesById(countriesList.countries, countryId);
-    } catch (error) {
-        throw new Error(`Error fetching countries: ${error}`);
+    if (cached) {
+        return filterCountriesById(cached.countries, countryId);
     }
-}
+
+    const countriesResponse = await footballRepository.getCountries();
+    const payload: CountriesCache = { countries: countriesResponse };
+    await setCachedData(FOOTBALL_COUNTRIES_CACHE_KEY, payload, FOOTBALL_CACHE_TTL);
+
+    return filterCountriesById(payload.countries, countryId);
+};

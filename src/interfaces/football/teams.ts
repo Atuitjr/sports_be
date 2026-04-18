@@ -1,20 +1,14 @@
-import type { Area } from "./leagues.ts";
-import type { Competition, leagueId, Season } from "./standings.ts";
+import type { Request } from 'express';
+import type { Area } from './leagues.js';
+import type { Competition, leagueId, Season } from './standings.js';
+import type { Country } from './countries.js';
 
-export  interface Country {
-    id: number;
-    name: string;
-    code: string;
-    flag: string;
-    parentAreaId: number;
-    parentArea: string;
-    childAreas?: Country[];
-}
+export type { Country };
 
-export type TeamId  = number;
+export type TeamId = number;
 
 export interface TeamsRequest extends Request {
-    headers: Request["headers"] & { teamid?: TeamId, leagueid?: leagueId };
+    query: Request['query'] & { teamId?: string; leagueId?: string };
 }
 
 export type TeamsList = {
@@ -38,7 +32,7 @@ interface Coach {
     name: string;
     dateOfBirth: string;
     nationality: string;
-    contract : {
+    contract: {
         start: string;
         until: string;
     }
@@ -54,7 +48,7 @@ interface SquadMember {
     nationality: string;
     shirtNumber: number;
     marketValue: string;
-    contract : {
+    contract: {
         start: string;
         until: string;
     }
@@ -66,17 +60,17 @@ interface StaffMember {
     lastName: string;
     name: string;
     role: string;
-    dateOfBirth: string
+    dateOfBirth: string;
 }
 
-export interface TeamInfo extends TeamsList{
+export interface TeamInfo extends TeamsList {
     area: Area;
     runningCompetitions: Competition[];
     coach: Coach;
     marketValue: string;
     squad: SquadMember[];
-    staff : StaffMember[];
-    contract ?: {
+    staff: StaffMember[];
+    contract?: {
         start: string;
         until: string;
     }
@@ -84,13 +78,15 @@ export interface TeamInfo extends TeamsList{
 
 export interface TeamsByLeague {
     competition: Competition;
-    season: Season
-    teams: (TeamsList &  {
+    season: Season;
+    teams: (TeamsList & {
         area: Area;
         runningCompetitions: Competition[];
         coach: Coach;
         marketValue: string | null;
         squad: SquadMember[];
-        staff : StaffMember[];
-    }) [];
+        staff: StaffMember[];
+    })[];
 }
+
+export type { leagueId };

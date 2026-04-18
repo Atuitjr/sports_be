@@ -1,20 +1,21 @@
-import type { LeaguesRequest } from "../../interfaces/football/leagues.ts";
-import { getLeaguesUseCase } from "../../useCases/football/leagues.ts";
+import type { Response } from 'express';
+import type { LeaguesRequest } from '../../interfaces/football/leagues.js';
+import { getLeaguesUseCase } from '../../useCases/football/leagues.js';
 
-export const getLeaguesController = async (req: LeaguesRequest, res: any) => {
-    try {
-        const headers = req.headers;
-        const { countryid } = headers;
+export const getLeaguesController = async (req: LeaguesRequest, res: Response): Promise<void> => {
+    const { countryId } = req.query;
 
-        if(!countryid){
-            res.status(400).json({ error: 'Bad Request',  message: 'Country ID is missing in headers'  });
-            return;
-        }
-
-        const leaguesList= await getLeaguesUseCase(Number(countryid || "-1"));
-        
-        res.status(200).json({ leagues: leaguesList });
-    } catch (error) {
-        res.status(401).json({ error: 'Server error',  message: error  });
+    if (countryId === undefined) {
+        res.status(400).json({ error: 'countryId query param is required' });
+        return;
     }
+
+    const parsed = parseInt(countryId, 10);
+    if (isNaN(parsed)) {
+        res.status(400).json({ error: 'countryId must be a valid number' });
+        return;
+    }
+
+    const leagues = await getLeaguesUseCase(parsed);
+    res.status(200).json(leagues);
 };

@@ -1,21 +1,21 @@
-import type { MatchesPerTeam, MatchesRequest } from "../../../interfaces/football/matches.ts";
-import { getMatchesPerTeamUseCase } from "../../../useCases/football/matches/team.ts";
+import type { Response } from 'express';
+import type { MatchesRequest, MatchesPerTeam } from '../../../interfaces/football/matches.js';
+import { getMatchesPerTeamUseCase } from '../../../useCases/football/matches/team.js';
 
+export const getMatchesByTeamController = async (req: MatchesRequest, res: Response): Promise<void> => {
+    const { teamId } = req.query;
 
-export const getMatchesByTeamController = async (req: MatchesRequest, res: any) => {
-    try {
-        const headers = req.headers;
-        const { teamid } = headers;
-
-        if (!teamid) {
-            res.status(400).json({ error: 'Bad Request',  message: 'teamid header is required' });
-            return;
-        }
-
-        const matchesList: MatchesPerTeam = await getMatchesPerTeamUseCase(Number(teamid));
-        
-        res.status(200).json({ matches: matchesList });
-    } catch (error) {
-        res.status(401).json({ error: 'Server error',  message: error  });
+    if (teamId === undefined) {
+        res.status(400).json({ error: 'teamId query param is required' });
+        return;
     }
+
+    const parsed = parseInt(teamId, 10);
+    if (isNaN(parsed)) {
+        res.status(400).json({ error: 'teamId must be a valid number' });
+        return;
+    }
+
+    const matches: MatchesPerTeam = await getMatchesPerTeamUseCase(parsed);
+    res.status(200).json(matches);
 };

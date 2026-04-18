@@ -1,6 +1,6 @@
-import type { PlayerInfo } from "./player.ts";
-import type { Competition, Season } from "./standings.ts";
-import type { TeamsList } from "./teams.ts";
+import type { PlayerInfo } from "./player.js";
+import type { Competition, Season } from "./standings.js";
+import type { TeamsList } from "./teams.js";
 
 type Scorers = {
     player: Exclude<PlayerInfo, "currentTeam">;

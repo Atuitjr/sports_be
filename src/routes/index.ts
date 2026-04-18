@@ -1,8 +1,8 @@
-import { footballRoutes } from './football/index.ts';
-const path = process.env.BASE_PATH || '/api';
-console.log(`base path is ${path}`)
+import type { Application } from 'express';
+import { footballRoutes } from './football/index.js';
 
-export const setRoutes = (app: any) => {
-  app.use(`${path}/football`, footballRoutes);
-  // Add more routes here as needed
-}
+const path = process.env.BASE_PATH ?? '/api';
+
+export const setRoutes = (app: Application): void => {
+    app.use(`${path}/football`, footballRoutes);
+};

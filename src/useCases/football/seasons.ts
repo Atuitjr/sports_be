@@ -1,22 +1,16 @@
-import { FOOTBALL_CACHE_TTL, FOOTBALL_SEASONS_CACHE_KEY } from "../../constants/football.ts";
-import { footballRepository } from "../../repositories/football.ts";
-import { getCachedDataByKey, setCachedData } from "../../repositories/redisRepository.ts";
+import { FOOTBALL_CACHE_TTL, FOOTBALL_SEASONS_CACHE_KEY } from '../../constants/football.js';
+import { footballRepository } from '../../repositories/football.js';
+import { getCachedDataByKey, setCachedData } from '../../repositories/redisRepository.js';
 
-export const getSeasonsUseCase = async () => {
-    try {
-        const cachedData = await getCachedDataByKey(FOOTBALL_SEASONS_CACHE_KEY);
-        let seasonsList: Number[] | null = cachedData || null;
+export const getSeasonsUseCase = async (): Promise<number[]> => {
+    const cached = await getCachedDataByKey<number[]>(FOOTBALL_SEASONS_CACHE_KEY);
 
-        if (seasonsList) {
-            return seasonsList; 
-        }
-
-        seasonsList = await footballRepository.getSeasons();
-        await setCachedData(FOOTBALL_SEASONS_CACHE_KEY, seasonsList, FOOTBALL_CACHE_TTL);
-
-
-        return seasonsList; 
-    } catch (error) {
-        throw new Error(`Error fetching seasons: ${error}`);
+    if (cached) {
+        return cached;
     }
-}
+
+    const seasons = await footballRepository.getSeasons();
+    await setCachedData(FOOTBALL_SEASONS_CACHE_KEY, seasons, FOOTBALL_CACHE_TTL);
+
+    return seasons;
+};

@@ -1,4 +1,5 @@
-import type { Area } from "./leagues.ts";
+import type { Request } from 'express';
+import type { Area } from './leagues.js';
 
 interface Team {
     id: number;
@@ -7,7 +8,6 @@ interface Team {
     tla: string;
     crest: string;
 }
-
 
 interface StandingTableEntry {
     position: number;
@@ -22,7 +22,6 @@ interface StandingTableEntry {
     goalsFor: number;
     goalDifference: number;
 }
-
 
 interface Standing {
     stage: string;
@@ -49,7 +48,7 @@ export type Season = {
 }
 
 export interface standingsDetails {
-    area : Area;
+    area: Area;
     competition: Competition;
     season: Season;
     standings: Standing[];
@@ -58,5 +57,5 @@ export interface standingsDetails {
 export type leagueId = number;
 
 export interface StandingsRequest extends Request {
-    headers: Request["headers"] & { leagueid: leagueId };
+    query: Request['query'] & { leagueId?: string };
 }

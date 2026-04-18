@@ -1,8 +1,8 @@
-import type { CountryId } from "./countries.ts";
-
+import type { Request } from 'express';
+import type { CountryId } from './countries.js';
 
 export interface LeaguesRequest extends Request {
-    headers: Request["headers"] & { countryid: CountryId };
+    query: Request['query'] & { countryId?: string };
 }
 
 export interface Area {
@@ -26,7 +26,7 @@ interface Team {
     lastUpdated: string;
 }
 
-interface Season{
+interface Season {
     id: number;
     startDate: string;
     endDate: string;
@@ -45,3 +45,5 @@ export interface LeagueDetails {
     numberOfAvailableSeasons: number;
     lastUpdated: string;
 }
+
+export type { CountryId };

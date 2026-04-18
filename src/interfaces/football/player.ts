@@ -1,9 +1,10 @@
-import type { TeamInfo } from "./teams.ts";
+import type { Request } from 'express';
+import type { TeamInfo } from './teams.js';
 
-export type PlayerId  = number;
+export type PlayerId = number;
 
 export interface PlayersRequest extends Request {
-    headers: Request["headers"] & { playerid?: PlayerId };
+    query: Request['query'] & { playerId?: string };
 }
 
 type CurrentTeamInfo = Partial<TeamInfo>;

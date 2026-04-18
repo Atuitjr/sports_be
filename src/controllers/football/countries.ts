@@ -1,23 +1,20 @@
-import type { Country, CountriesRequest } from "../../interfaces/football/countries.ts";
-import { getCountriesUseCase } from "../../useCases/football/countries.ts";
+import type { Response } from 'express';
+import type { Country, CountriesRequest, CountryId } from '../../interfaces/football/countries.js';
+import { getCountriesUseCase } from '../../useCases/football/countries.js';
 
+export const getCountriesController = async (req: CountriesRequest, res: Response): Promise<void> => {
+    const { countryId } = req.query;
 
-
-export const getCountriesController = async (req: CountriesRequest, res: any) => {
-    try {
-        
-        const headers = req.headers;
-        const { countryid } = headers;
-
-        if (!countryid) {
-            res.status(400).json({ error: 'Bad Request',  message: 'countryid header is required' });
+    let countryid: CountryId = null;
+    if (countryId !== undefined) {
+        const parsed = parseInt(countryId, 10);
+        if (isNaN(parsed)) {
+            res.status(400).json({ error: 'countryId must be a valid number' });
             return;
         }
-
-        const countriesList: Country[] = await getCountriesUseCase(Number(countryid || "-1"));
-        
-        res.status(200).json({ countries: countriesList });
-    } catch (error) {
-        res.status(401).json({ error: 'Server error',  message: error  });
+        countryid = parsed;
     }
+
+    const countries: Country[] = await getCountriesUseCase(countryid);
+    res.status(200).json({ countries });
 };

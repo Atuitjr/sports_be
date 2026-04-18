@@ -1,13 +1,13 @@
-import {getCountriesController} from  './countries.ts'
-import { getSeasonsController } from './seasons.ts';
-import { getLeaguesController } from './leagues.ts';
-import { getStandingsController } from './standings.ts';
-import { getTeamsController } from './teams.ts';
-import { getPlayerController } from './player.ts';
-import { getPichichiController } from './pichichi.ts';
-import { getMatchesByCompetitionController } from './matches/competition.ts';
-import { getMatchesByTeamController } from './matches/team.ts';
-import { getMatchController } from './matches/match.ts';
+import { getCountriesController } from './countries.js';
+import { getSeasonsController } from './seasons.js';
+import { getLeaguesController } from './leagues.js';
+import { getStandingsController } from './standings.js';
+import { getTeamsController } from './teams.js';
+import { getPlayerController } from './player.js';
+import { getPichichiController } from './pichichi.js';
+import { getMatchesByCompetitionController } from './matches/competition.js';
+import { getMatchesByTeamController } from './matches/team.js';
+import { getMatchController } from './matches/match.js';
 
 export const footballControllers = {
     getCountriesController,
@@ -19,5 +19,5 @@ export const footballControllers = {
     getPichichiController,
     getMatchesByCompetitionController,
     getMatchesByTeamController,
-    getMatchController
-} ;
+    getMatchController,
+};

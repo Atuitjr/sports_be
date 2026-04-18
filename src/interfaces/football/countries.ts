@@ -1,4 +1,6 @@
-export  interface Country {
+import type { Request } from 'express';
+
+export interface Country {
     id: number;
     name: string;
     code: string;
@@ -8,8 +10,8 @@ export  interface Country {
     childAreas?: Country[];
 }
 
-export type CountryId  = number | null;
+export type CountryId = number | null;
 
 export interface CountriesRequest extends Request {
-    headers: Request["headers"] & { countryid: CountryId };
+    query: Request['query'] & { countryId?: string };
 }

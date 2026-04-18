@@ -1,11 +1,11 @@
-import Redis from 'ioredis';
+import { Redis } from 'ioredis';
+import { logger } from './logger.js';
 
-// Use an environment variable for the connection string
-const redisUrl = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
+const redisUrl = process.env.REDIS_URL ?? 'redis://127.0.0.1:6379';
 
-const redis = new (Redis as any)(redisUrl);
+const redis = new Redis(redisUrl);
 
-redis.on('connect', () => console.log('Redis connected successfully'));
-redis.on('error', (err: any) => console.error('Redis connection error:', err));
+redis.on('connect', () => logger.info('Redis connected'));
+redis.on('error', (err: unknown) => logger.error('Redis connection error', { err }));
 
 export default redis;

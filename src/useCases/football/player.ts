@@ -1,26 +1,17 @@
-import { FOOTBALL_PLAYERS_CACHE_KEY } from "../../constants/football.ts";
-import type { PlayerId, PlayerInfo } from "../../interfaces/football/player.ts";
-import { footballRepository } from "../../repositories/football.ts";
-import { getHashDataByField, setHashData } from "../../repositories/redisRepository.ts";
+import { FOOTBALL_PLAYERS_CACHE_KEY } from '../../constants/football.js';
+import type { PlayerId, PlayerInfo } from '../../interfaces/football/player.js';
+import { footballRepository } from '../../repositories/football.js';
+import { getHashDataByField, setHashData } from '../../repositories/redisRepository.js';
 
-export const getPlayerUseCase = async (playerId: PlayerId) => {
-    try {
-        const cachedData = await getHashDataByField(FOOTBALL_PLAYERS_CACHE_KEY, playerId.toString());
-        let playerInfo: { player: PlayerInfo } | null = cachedData as { player: PlayerInfo } || null;
+export const getPlayerUseCase = async (playerId: PlayerId): Promise<PlayerInfo> => {
+    const cached = await getHashDataByField<PlayerInfo>(FOOTBALL_PLAYERS_CACHE_KEY, String(playerId));
 
-        if(playerInfo) {
-            return playerInfo.player;
-        }
-
-        const playerResponse: PlayerInfo = await footballRepository.getPlayerInfo(playerId);
-        playerInfo = {
-            player: playerResponse
-        }
-
-        await setHashData(FOOTBALL_PLAYERS_CACHE_KEY, playerId.toString(), playerInfo);
-
-        return playerInfo.player;
-    } catch (error) {
-        throw new Error(`Error fetching player: ${error}`);
+    if (cached) {
+        return cached;
     }
-}
+
+    const playerResponse = await footballRepository.getPlayerInfo(playerId);
+    await setHashData(FOOTBALL_PLAYERS_CACHE_KEY, String(playerId), playerResponse);
+
+    return playerResponse;
+};
