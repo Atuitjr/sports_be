@@ -24,36 +24,34 @@ type HashPayload<T> = { data: T; timestamp: number };
 
 export const setHashData = async <T>(hashKey: string, field: string, value: T): Promise<void> => {
     const payload: HashPayload<T> = { data: value, timestamp: Date.now() };
-    await redis.hset(hashKey, { [field]: JSON.stringify(payload) });
+    await redis.hset(hashKey, { [field]: payload });
     logger.debug('Hash set', { hashKey, field });
 };
 
 export const getHashDataByField = async <T>(hashKey: string, field: string): Promise<T | null> => {
-    const raw = await redis.hget<string>(hashKey, field);
+    const raw = await redis.hget<HashPayload<T>>(hashKey, field);
     if (!raw) {
         logger.debug('Hash miss', { hashKey, field });
         return null;
     }
 
-    const { data, timestamp } = JSON.parse(raw) as HashPayload<T>;
-
-    if (Date.now() - timestamp > ONE_WEEK_MS) {
+    if (Date.now() - raw.timestamp > ONE_WEEK_MS) {
         logger.debug('Hash field expired, deleting', { hashKey, field });
         await redis.hdel(hashKey, field);
         return null;
     }
 
     logger.debug('Hash hit', { hashKey, field });
-    return data;
+    return raw.data;
 };
 
 export const getAllHashData = async <T>(hashKey: string): Promise<Record<string, T> | null> => {
-    const allData = await redis.hgetall<Record<string, string>>(hashKey);
+    const allData = await redis.hgetall<Record<string, HashPayload<T>>>(hashKey);
     if (!allData || Object.keys(allData).length === 0) return null;
 
     const parsed: Record<string, T> = {};
-    for (const [field, value] of Object.entries(allData)) {
-        parsed[field] = JSON.parse(value) as T;
+    for (const [field, payload] of Object.entries(allData)) {
+        parsed[field] = payload.data;
     }
     logger.debug('Hash getall', { hashKey, fields: Object.keys(parsed).length });
     return parsed;
